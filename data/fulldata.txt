@@ -1,0 +1,14 @@
+Download the row full dataset here:
+https://www.kaggle.com/balraj98/modelnet40-princeton-3d-object-dataset
+
+Download the project-version full dataset here:
+https://www.kaggle.com/xinruizhan/gnnon3d
+
+Download the graph full metirc constructed data here:
+https://www.kaggle.com/xinruizhan/graphfull1000
+
+Download the graph fix-radius constructed data here:
+https://www.kaggle.com/xinruizhan/graphradius1000
+
+Download the k neigh constructed data here:
+https://www.kaggle.com/xinruizhan/graphkneigh1000

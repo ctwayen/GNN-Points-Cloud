@@ -1,1 +1,1 @@
-# GNN-Points-Cloud
+# GNN-on-3d-points
