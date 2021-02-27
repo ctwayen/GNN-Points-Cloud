@@ -45,22 +45,26 @@ class run():
         return self.Train.get_stats()
     
 def main():
-    params_base = 'config/model_params/GCN_k_15/'
-    output_base = 'config/model_results/GCN_k_15/'
+    params_base = 'config/model_params/GCN_k_15/10/'
+    output_base = 'config/model_results/GCN_k_15/10/'
+    exist = os.listdir(output_base)
     for obj in os.listdir(params_base):
-        temp_out = output_base + obj[:-5] + '.csv'
-        temp_in = params_base + obj
-        print(temp_out, temp_in)
-        with open(temp_in, 'r') as fp:
-            temp_dct = json.load(fp)
-        temp = run(temp_dct)
-        test = temp.process()
-        out = pd.DataFrame()
-        out['epoch'] = test[0]
-        out['train_ls'] = test[1]
-        out['test_ls'] = test[2]
-        out['test_acc'] = test[3]
-        out.to_csv(temp_out, index=False)
-
+        if obj == '.ipynb_checkpoints':
+            continue
+        temp_out = obj[:-5] + '.csv'
+        if temp_out not in exist:
+            temp_out = output_base + temp_out
+            temp_in = params_base + obj
+            print(temp_out, temp_in)
+            with open(temp_in, 'r') as fp:
+                temp_dct = json.load(fp)
+            temp = run(temp_dct)
+            test = temp.process()
+            out = pd.DataFrame()
+            out['epoch'] = [x[0] for x in test]
+            out['train_ls'] = [x[1] for x in test]
+            out['test_ls'] = [x[2] for x in test]
+            out['test_acc'] = [x[3] for x in test]
+            out.to_csv(temp_out, index=False)
 if __name__ == '__main__':
     main()
