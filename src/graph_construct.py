@@ -25,6 +25,6 @@ def graph_construct_full(pts):
 
 def graph_construct_radius(pts, r):
     nbrs = NearestNeighbors(algorithm='auto', leaf_size=30, p=2, n_neighbors=10,
-         radius=0.1).fit(pts)
+         radius=r).fit(pts)
     out = nbrs.radius_neighbors_graph(pts, mode='distance').todense()
     return out
