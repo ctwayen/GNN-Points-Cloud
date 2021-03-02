@@ -11,28 +11,6 @@ import os
 import numpy as np
 import h5py
 
-def construct_graph_knn(pts_num = 1000, base = 'data/modelnet/modelnet_points/', k=15):
-    output_base = 'data/modelnet/modelnet_graph_k{x}'.format(x=k)
-    os.makedirs(output_base, exist_ok=True)
-    for obj in os.listdir(base):
-        cat = obj[:-3]
-        print(obj)
-        if obj[-2:] == 'h5':
-            os.makedirs(output_base + '/' + cat, exist_ok=True)
-            f = h5py.File(base + obj, 'r')
-            for key in f.keys():
-                if f[key][:].shape[0] >= pts_num:
-                    pts = graph_construct.pts_norm(graph_construct.pts_sample(f[key][:], pts_num))
-                    if np.isnan(pts).any():
-                        continue
-                    temp = graph_construct.graph_construct_kneigh(pts, k=k)
-                    filename = output_base + '/' + cat + '/' + key + '.h5'
-                    print(filename)
-                    out = h5py.File(filename, 'w')
-                    out.create_dataset('edges', data=temp[0])
-                    out.create_dataset('edge_weight', data=temp[1])
-                    out.create_dataset('nodes', data=pts)
-                    out.close()
 def construct_graph_radius(pts_num = 1000, base = 'data/modelnet/modelnet_points/', radius=0.1):
     output_base = 'data/modelnet/modelnet_graph_r{x}/'.format(x=radius)
     os.makedirs(output_base, exist_ok=True)
@@ -49,7 +27,6 @@ def construct_graph_radius(pts_num = 1000, base = 'data/modelnet/modelnet_points
                         continue
                     temp = graph_construct.graph_construct_radius(pts, r=radius)
                     filename = output_base + '/' + cat + '/' + key + '.h5'
-                    print(filename)
                     out = h5py.File(filename, 'w')
                     out.create_dataset('edges', data=temp[0])
                     out.create_dataset('edge_weight', data=temp[1])
@@ -80,13 +57,14 @@ class run():
         else:
             class_num = 40
         if args['model'] == 'GCN':
-            model = graph_model.GCN(pool=args['pool'], ratio=args['ratio'], class_num=class_num)
+            self.model = graph_model.GCN(pool=args['pool'], ratio=args['ratio'], class_num=class_num)
             opts = {
                     'lr': args['lr'],
                     'epochs': args['epoch'],
-                    'batch_size': args['bs']
+                    'batch_size': args['bs'],
+                    'model_path': args['model_path']
             }
-        self.Train = graph_trainer.trainer(model = model,
+        self.Train = graph_trainer.trainer(model = self.model,
                       train_set = train_dataset,
                       test_set = test_dataset,opts = opts)
     def process(self):
@@ -94,20 +72,25 @@ class run():
         return self.Train.get_stats()
     
 def main():
-    params_base = 'config/model_params/GCN_k_15/10/'
-    output_base = 'config/model_results/GCN_k_15/10/'
-    exist = os.listdir(output_base)
-    for obj in os.listdir(params_base):
-        if obj == '.ipynb_checkpoints':
-            continue
-        temp_out = obj[:-5] + '.csv'
-        if temp_out not in exist:
-            temp_out = output_base + temp_out
-            temp_in = params_base + obj
-            print(temp_out, temp_in)
-            with open(temp_in, 'r') as fp:
-                temp_dct = json.load(fp)
-            temp = run(temp_dct)
+    base = 'data/modelnet/'
+    for obj in os.listdir(base):
+        if obj != 'ModelNet40' and obj != '.ipynb_checkpoints' and obj != 'modelnet_points':
+            print(base + obj)
+            temp = {
+                'data': '10',
+                'base': base + obj + '/',
+                'model': 'GCN',
+                'pool': 'SAG',
+                'ratio': 0.4,
+                'val_size': 0.2,
+                'lr': 5e-4,
+                'epoch': 30,
+                'bs': 32,
+                'model_path': 'trained_models/' + obj + '.pt'
+            }
+            temp = run(temp)
+            temp_out = 'config/model_results/' + obj + '.csv'
+            print(temp_out)
             test = temp.process()
             print(test)
             out = pd.DataFrame()
@@ -116,9 +99,5 @@ def main():
             out['test_ls'] = [x[2] for x in test]
             out['test_acc'] = [x[3] for x in test]
             out.to_csv(temp_out, index=False)
-    construct_graph_radius(radius=0.15)
-    construct_graph_radius(radius=0.2)
-    construct_graph_knn(k=20)
-    construct_graph_knn(k=25)
 if __name__ == '__main__':
     main()

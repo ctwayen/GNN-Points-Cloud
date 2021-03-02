@@ -24,7 +24,10 @@ def graph_construct_full(pts):
     return dist.pairwise(pts)
 
 def graph_construct_radius(pts, r):
-    nbrs = NearestNeighbors(algorithm='auto', leaf_size=30, p=2, n_neighbors=10,
+    nbrs = NearestNeighbors(algorithm='auto', leaf_size=30, p=2,
          radius=r).fit(pts)
     out = nbrs.radius_neighbors_graph(pts, mode='distance').todense()
-    return out
+    G=nx.from_numpy_matrix(out, create_using=nx.DiGraph)
+    edges = [[x[0] for x in G.edges()], [x[1] for x in G.edges]]
+    weights = [x[2]['weight'] for x in G.edges(data=True)]
+    return np.array(edges), np.array(weights)

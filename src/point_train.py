@@ -1,12 +1,16 @@
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
+from torch_geometric.nn import GCNConv, TopKPooling, SAGPooling, ASAPooling, EdgePooling
 from torch_geometric.data import Data
-import torch.utils.data as data
-import numpy as np
-import tqdm
+import os
 import h5py
-class trainer():
+import torch.utils.data as data
+from sklearn import preprocessing
+import numpy as np
+from tqdm.notebook import tqdm
+class Trainer():
+    
     def __init__(self,model,train_set,test_set,opts):
         self.model = model  # neural net
         
@@ -16,39 +20,31 @@ class trainer():
         
         self.epochs = opts['epochs']
         print(model)
-        print(opts)
         self.optimizer = torch.optim.Adam(model.parameters(), opts['lr']) # optimizer method for gradient descent
         self.criterion = torch.nn.CrossEntropyLoss()                      # loss function
         self.train_loader = torch.utils.data.DataLoader(dataset=train_set,
-                                                        batch_size=1,
+                                                        batch_size=opts['batch_size'],
                                                         shuffle=True)
         self.test_loader = torch.utils.data.DataLoader(dataset=test_set,
-                                                       batch_size=1,
+                                                       batch_size=opts['batch_size'],
                                                        shuffle=True)
-        self.batch = opts['batch_size']
         self.stats = []
-        self.best_acc = 0
-        self.model_path = opts['model_path']
         
     def train(self):
         self.model.train() #put model in training mode
         for epoch in range(self.epochs):
             self.tr_loss = []
-            for i, (x, edges, weights, labels) in enumerate(self.train_loader):
-                x, edges, weights, labels = x.to(self.device), edges.to(self.device), weights.to(self.device), labels.to(self.device)
+            for i, (x, labels) in tqdm(enumerate(self.train_loader),
+                                                   total = len(self.train_loader)):
+                x, labels = x.to(self.device), labels.to(self.device)
+                self.optimizer.zero_grad()
                 #print(labels)
-                if i % self.batch == 0 or i==len(self.train_loader):
-                    if i != 0:
-                        self.optimizer.zero_grad()
-                        loss = self.criterion(out, label)
-                        loss.backward()                        
-                        self.optimizer.step()                  
-                        self.tr_loss.append(loss.item())
-                    out = self.model(x, edges, weights)
-                    label = labels
-                else:
-                    out = torch.cat((out, self.model(x, edges, weights)), 0)
-                    label = torch.cat((label, labels), 0)
+                outputs = self.model(x)  
+                loss = self.criterion(outputs, labels) 
+                loss.backward()                        
+                self.optimizer.step()                  
+                self.tr_loss.append(loss.item())       
+            
             self.test(epoch) # run through the validation set
         
     def test(self,epoch):
@@ -57,13 +53,13 @@ class trainer():
             self.test_loss = []
             self.test_accuracy = []
             
-            for i, (x, edges, weights, labels) in enumerate(self.test_loader):
+            for i, (x, labels) in enumerate(self.test_loader):
                 
-                x, edges, weights, labels = x.to(self.device), edges.to(self.device), weights.to(self.device), labels.to(self.device)
+                x, labels = x.to(self.device), labels.to(self.device)
                 # pass data through network
                 # turn off gradient calculation to speed up calcs and reduce memory
                 with torch.no_grad():
-                    outputs = self.model(x, edges, weights)
+                    outputs = self.model(x)
                 
                 # make our predictions and update our loss info
                 _, predicted = torch.max(outputs.data, 1)
@@ -72,14 +68,9 @@ class trainer():
                 
                 self.test_accuracy.append((predicted == labels).sum().item() / predicted.size(0))
             
-            temp_acc = np.mean(self.test_accuracy)
             print('epoch: {}, train loss: {}, test loss: {}, test accuracy: {}'.format( 
                   epoch+1, np.mean(self.tr_loss), np.mean(self.test_loss), np.mean(self.test_accuracy)))
-            self.stats.append((epoch+1, np.mean(self.tr_loss), np.mean(self.test_loss), temp_acc))
-            if temp_acc > self.best_acc:
-                print('Found better. Saving model dict')
-                self.best_acc = temp_acc
-                torch.save(self.model.state_dict(), self.model_path)
+            self.stats.append((epoch+1, np.mean(self.tr_loss), np.mean(self.test_loss), np.mean(self.test_accuracy)))
             
     def get_stats(self):
         return self.stats
