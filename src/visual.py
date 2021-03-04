@@ -2,8 +2,12 @@ from matplotlib import cm
 import networkx as nx
 import matplotlib.pyplot as plt
 
-def graph(A):
-    G = nx.from_numpy_matrix(A)
+def graph(edges):
+    edge = []
+    for i in range(len(edges[0])):
+        edge.append((edges[0][i], edges[1][i]))
+    G = nx.Graph()
+    G.add_edges_from(edge)
     return G
 
 def draw_graph(G, pts, axis='x', path=None):

@@ -11,7 +11,7 @@ import numpy as np
 from tqdm.notebook import tqdm
 
 class PointNet(nn.Module):
-    def __init__(self):
+    def __init__(self, class_num=10):
         super(PointNet, self).__init__()
         self.input = nn.Sequential(
             nn.Conv1d(3, 64, 1),
@@ -34,7 +34,7 @@ class PointNet(nn.Module):
         self.mlp_third = nn.Sequential(
             nn.Conv1d(200, 128, 1),
             nn.ReLU(),
-            nn.Conv1d(128, 10, 1),
+            nn.Conv1d(128, class_num, 1),
             nn.ReLU()
         )
         

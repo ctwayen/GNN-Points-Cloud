@@ -29,6 +29,8 @@ class Trainer():
                                                        batch_size=opts['batch_size'],
                                                        shuffle=True)
         self.stats = []
+        self.best_acc = 0
+        self.model_path = opts['model_path']
         
     def train(self):
         self.model.train() #put model in training mode
@@ -71,6 +73,11 @@ class Trainer():
             print('epoch: {}, train loss: {}, test loss: {}, test accuracy: {}'.format( 
                   epoch+1, np.mean(self.tr_loss), np.mean(self.test_loss), np.mean(self.test_accuracy)))
             self.stats.append((epoch+1, np.mean(self.tr_loss), np.mean(self.test_loss), np.mean(self.test_accuracy)))
-            
+            temp_acc = np.mean(self.test_accuracy)
+            if temp_acc > self.best_acc:
+                print('Found better. Saving model dict')
+                self.best_acc = temp_acc
+                torch.save(self.model.state_dict(), self.model_path)
+
     def get_stats(self):
         return self.stats
