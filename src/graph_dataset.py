@@ -8,6 +8,8 @@ class GCNdata(data.Dataset):
         self.paths = paths
         le = preprocessing.LabelEncoder()
         self.labels = le.fit_transform(labels)
+        self.dct = le.classes_
+        
     def __getitem__(self, index):
         f = h5py.File(self.paths[index], 'r')
         edge_w = f['edge_weight'][:]
@@ -22,3 +24,6 @@ class GCNdata(data.Dataset):
     
     def __len__(self):
         return len(self.paths)
+    
+    def getdct(self):
+        return self.dct
