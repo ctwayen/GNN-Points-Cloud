@@ -9,6 +9,8 @@ import pandas as pd
 import numpy as np
 import shutil
 import glob
+from torch_geometric.data import InMemoryDataset, download_url, extract_zip
+import os.path as osp
 
 def download(root='data/modelnet/', name='40'):
     urls = {
@@ -22,7 +24,7 @@ def download(root='data/modelnet/', name='40'):
     os.unlink(path)
     folder = osp.join(root, 'ModelNet{}'.format(self.name))
     shutil.rmtree(self.raw_dir)
-    os.rename(folder, self.raw_dir)
+    osp.rename(folder, self.raw_dir)
 
     # Delete osx metadata generated during compression of ModelNet10
     metadata_folder = osp.join(root, '__MACOSX')

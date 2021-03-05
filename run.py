@@ -130,7 +130,7 @@ def main():
     elif args.testorall == 'all':
         print('If you are first time running this project, please run "python run.py --mode download"')
         print('You can specify which graph construction method to use by using --method and follow the corresponding param.')
-        print('For example, python run.py --mode download --method knn --k 15, if not method specified, default is knn with k=30')
+        print('For example, python run.py --mode download --method knn --k 15, if no method specified, default is knn with k=30')
         print('Raw modelnet data is stored in data/modelnet/ModelNet40, points data will be stored in data/modelnet/modelnet_points')
         print('Processed data will stored in data/modelnet/ with corresponding method name')
         print('ALERT: Do not move the data files, it may cause problems')
