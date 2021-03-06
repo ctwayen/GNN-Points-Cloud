@@ -4,7 +4,6 @@ import torch.nn.functional as F
 from torch_geometric.data import Data
 import torch.utils.data as data
 import numpy as np
-import tqdm
 import h5py
 class trainer():
     def __init__(self,model,train_set,test_set,opts):

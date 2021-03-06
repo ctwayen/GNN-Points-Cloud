@@ -22,10 +22,7 @@ def download(root='data/modelnet/', name='40'):
     path = download_url(urls[name], root)
     extract_zip(path, root)
     os.unlink(path)
-    folder = osp.join(root, 'ModelNet{}'.format(self.name))
-    shutil.rmtree(self.raw_dir)
-    osp.rename(folder, self.raw_dir)
-
+    folder = osp.join(root, 'ModelNet{}'.format(name))
     # Delete osx metadata generated during compression of ModelNet10
     metadata_folder = osp.join(root, '__MACOSX')
     if osp.exists(metadata_folder):
@@ -63,7 +60,7 @@ def create_pt(base = 'data/modelnet/ModelNet40/', output_base = 'data/modelnet/m
                 
     os.makedirs(output_base, exist_ok=True)
 
-    for obj in tqdm(paths.keys()):
+    for obj in paths.keys():
         h5f = h5py.File(output_base + str(obj)+'.h5', 'w')
         for path, i in zip(paths[obj], range(len(paths[obj]))):
             if path[-3:] == 'off':

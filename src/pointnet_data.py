@@ -8,7 +8,6 @@ import h5py
 import torch.utils.data as data
 from sklearn import preprocessing
 import numpy as np
-from tqdm.notebook import tqdm
 
 class Pointdata(data.Dataset):
     def __init__(self, paths, labels):

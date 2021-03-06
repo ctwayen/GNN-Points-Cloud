@@ -97,8 +97,8 @@ def main():
     parser.add_argument('--data', type=str, default='10', choices=['10', '40'], help='Running on 10 or 40 classes')
     parser.add_argument('--epoch', type=int, default=30, help='parameter epoch')
     parser.add_argument('--val_size', type=float, default=0.2, help='parameter validation size ratio. E.g: 0.2')
-    parser.add_argument('--model_path', type=str, default='trained_models/modelnet_graph_k30.pt')
-    parser.add_argument('--output_path', type=str, default='config/model_results/modelnet_graph_k30.csv')
+    parser.add_argument('--model_path', type=str, default='trained_models/user_result/modelnet_graph_k30.pt')
+    parser.add_argument('--output_path', type=str, default='config/model_results/user_result/modelnet_graph_k30.csv')
     parser.add_argument('--pool', type=str, default='SAG', choices=['SAG', 'ASA'])
     
     # Test
@@ -135,10 +135,11 @@ def main():
         print('Processed data will stored in data/modelnet/ with corresponding method name')
         print('ALERT: Do not move the data files, it may cause problems')
         if args.mode == 'download':
-            print('Download the data')
-            create.download()
+            #print('Download the data')
+            #create.download()
             print('Create the points')
             create.create_pt()
+            print('Construct Graph')
             if args.method == 'knn':
                 create.construct_graph_knn(k=args.k)
             elif args.method =='fix_radius':
