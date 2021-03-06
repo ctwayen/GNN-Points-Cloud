@@ -5,7 +5,9 @@
    
    
 See project website here: https://ctwayen.github.io/Graph-Neural-Network-on-3D-Points/
+
 Docker name: ctwayen/project_docker
+
 Docker web path: https://hub.docker.com/repository/docker/ctwayen/project_docker
 
 ### Instruction:
