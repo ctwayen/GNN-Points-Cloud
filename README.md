@@ -47,6 +47,9 @@ Docker web path: https://hub.docker.com/repository/docker/ctwayen/project_docker
 
    Besides training your own models, we also offered few trained models. You could check notebooks/Analyzing results to see our training results for different hyperparamters setting. You could also check how to use a trained_model there.
    
+   You could also check the data augmentation's effects on models in the notebook/analyzing resistence file
+   
+   You could check how pooling layer affect result in the notebook/analyzing pooling file
 
 Author: @Xinrui Zhan.If you find any bug, contact me through the email: ctwayen@outlook.com 
    
